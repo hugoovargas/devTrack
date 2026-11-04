@@ -22,4 +22,49 @@ describe("Gerenciamento de projetos", () => {
 
   });
 
+
+  it("deve permitir excluir um projeto", () => {
+
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#nome-projeto").type("Projeto temporário");
+    cy.get("#tecnologias-projeto").type("JavaScript");
+    cy.get("#descricao-projeto").type("Projeto para testar exclusão");
+
+    cy.contains("button", "Salvar projeto").click();
+
+    cy.contains("Projeto temporário").should("be.visible");
+
+    cy.window().then((win) => {
+      cy.stub(win, "confirm").returns(true);
+    });
+
+    cy.contains("article", "Projeto temporário")
+      .find("button")
+      .click();
+
+    cy.contains("Projeto temporário").should("not.exist");
+
+  });
+
+  it("deve manter o projeto salvo após atualizar a página", () => {
+
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#nome-projeto").type("Projeto persistente");
+    cy.get("#tecnologias-projeto").type("JavaScript, HTML e CSS");
+    cy.get("#descricao-projeto").type("Teste de persistência no LocalStorage");
+
+    cy.contains("button", "Salvar projeto").click();
+
+    
+    cy.contains("Projeto persistente").should("be.visible");
+
+    cy.reload();
+    
+    cy.contains("Projeto persistente").should("be.visible");
+    cy.contains("JavaScript, HTML e CSS").should("be.visible");
+
+  });
+
 });
