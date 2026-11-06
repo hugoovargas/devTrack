@@ -1,6 +1,4 @@
-
 describe("Gerenciamento de projetos", () => {
-
   beforeEach(() => {
     cy.visit("/");
     cy.clearLocalStorage();
@@ -8,7 +6,6 @@ describe("Gerenciamento de projetos", () => {
   });
 
   it("deve permitir cadastrar um projeto", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Sistema Bancário");
@@ -19,11 +16,9 @@ describe("Gerenciamento de projetos", () => {
 
     cy.contains("Sistema Bancário").should("be.visible");
     cy.contains("Java, Spring Boot").should("be.visible");
-
   });
 
   it("deve permitir cadastrar um projeto sem descrição", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Sistema Bancário");
@@ -33,12 +28,9 @@ describe("Gerenciamento de projetos", () => {
 
     cy.contains("Sistema Bancário").should("be.visible");
     cy.contains("Java, Spring Boot").should("be.visible");
-
   });
 
-
   it("deve permitir excluir um projeto", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Projeto temporário");
@@ -53,16 +45,12 @@ describe("Gerenciamento de projetos", () => {
       cy.stub(win, "confirm").returns(true);
     });
 
-    cy.contains("article", "Projeto temporário")
-      .find("button")
-      .click();
+    cy.contains("article", "Projeto temporário").find("button").click();
 
     cy.contains("Projeto temporário").should("not.exist");
-
   });
 
   it("deve manter o projeto salvo após atualizar a página", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Projeto persistente");
@@ -71,18 +59,15 @@ describe("Gerenciamento de projetos", () => {
 
     cy.contains("button", "Salvar projeto").click();
 
-    
     cy.contains("Projeto persistente").should("be.visible");
 
     cy.reload();
-    
+
     cy.contains("Projeto persistente").should("be.visible");
     cy.contains("JavaScript, HTML e CSS").should("be.visible");
-
   });
 
   it("deve manter o projeto excluído após atualizar a página", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Projeto para exclusão");
@@ -97,9 +82,7 @@ describe("Gerenciamento de projetos", () => {
       cy.stub(win, "confirm").returns(true);
     });
 
-    cy.contains("article", "Projeto para exclusão")
-      .find("button")
-      .click();
+    cy.contains("article", "Projeto para exclusão").find("button").click();
 
     cy.contains("Projeto para exclusão").should("not.exist");
 
@@ -109,16 +92,14 @@ describe("Gerenciamento de projetos", () => {
 
     cy.window().then((win) => {
       const projetos = JSON.parse(
-        win.localStorage.getItem("devtrack-projetos") || "[]"
+        win.localStorage.getItem("devtrack-projetos") || "[]",
       );
 
       expect(projetos).to.have.length(0);
     });
-
   });
 
   it("deve manter o projeto quando a exclusão for cancelada", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Projeto protegido");
@@ -133,32 +114,58 @@ describe("Gerenciamento de projetos", () => {
       cy.stub(win, "confirm").returns(false);
     });
 
-    cy.contains("article", "Projeto protegido")
-      .find("button")
-      .click();
+    cy.contains("article", "Projeto protegido").find("button").click();
 
     cy.contains("Projeto protegido").should("be.visible");
-
   });
 
   it("não deve permitir cadastrar um projeto com campos vazios", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.contains("button", "Salvar projeto").click();
 
     cy.window().then((win) => {
       const projetos = JSON.parse(
-        win.localStorage.getItem("devtrack-projetos") || "[]"
+        win.localStorage.getItem("devtrack-projetos") || "[]",
       );
 
       expect(projetos).to.have.length(0);
     });
+  });
 
+  it("não deve permitir cadastrar um projeto sem tecnologias", () => {
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#nome-projeto").type("Projeto incompleto");
+
+    cy.contains("button", "Salvar projeto").click();
+
+    cy.window().then((win) => {
+      const projetos = JSON.parse(
+        win.localStorage.getItem("devtrack-projetos") || "[]",
+      );
+
+      expect(projetos).to.have.length(0);
+    });
+  });
+
+  it("não deve permitir cadastrar um projeto sem nome", () => {
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#tecnologias-projeto").type("JavaScript");
+
+    cy.contains("button", "Salvar projeto").click();
+
+    cy.window().then((win) => {
+      const projetos = JSON.parse(
+        win.localStorage.getItem("devtrack-projetos") || "[]",
+      );
+
+      expect(projetos).to.have.length(0);
+    });
   });
 
   it("deve permitir cadastrar vários projetos sem sobrescrever os anteriores", () => {
-
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Sistema Bancário");
@@ -175,19 +182,15 @@ describe("Gerenciamento de projetos", () => {
 
     cy.contains("button", "Salvar projeto").click();
 
-
     cy.contains("Sistema Bancário").should("be.visible");
     cy.contains("DevTrack").should("be.visible");
 
-
     cy.window().then((win) => {
       const projetos = JSON.parse(
-        win.localStorage.getItem("devtrack-projetos") || "[]"
+        win.localStorage.getItem("devtrack-projetos") || "[]",
       );
 
       expect(projetos).to.have.length(2);
     });
-
   });
-
 });

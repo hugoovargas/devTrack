@@ -183,7 +183,7 @@ formularioEstudo.addEventListener("submit", function (evento) {
     const duracao = Number(campoDuracaoEstudo.value);
 
     if (!Number.isInteger(duracao) || duracao <= 0 || duracao > 1000) {
-        alert("Informe uma duração em minutos maior que zero e menor que 1000.");
+        alert("Informe uma duração em minutos maior que zero e menor ou igual a 1000.");
         return;
     }
 
