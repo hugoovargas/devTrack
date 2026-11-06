@@ -22,6 +22,20 @@ describe("Gerenciamento de projetos", () => {
 
   });
 
+  it("deve permitir cadastrar um projeto sem descrição", () => {
+
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#nome-projeto").type("Sistema Bancário");
+    cy.get("#tecnologias-projeto").type("Java, Spring Boot");
+
+    cy.contains("button", "Salvar projeto").click();
+
+    cy.contains("Sistema Bancário").should("be.visible");
+    cy.contains("Java, Spring Boot").should("be.visible");
+
+  });
+
 
   it("deve permitir excluir um projeto", () => {
 
@@ -67,9 +81,44 @@ describe("Gerenciamento de projetos", () => {
 
   });
 
+  it("deve manter o projeto excluído após atualizar a página", () => {
+
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#nome-projeto").type("Projeto para exclusão");
+    cy.get("#tecnologias-projeto").type("JavaScript");
+    cy.get("#descricao-projeto").type("Teste de persistência da exclusão");
+
+    cy.contains("button", "Salvar projeto").click();
+
+    cy.contains("Projeto para exclusão").should("be.visible");
+
+    cy.window().then((win) => {
+      cy.stub(win, "confirm").returns(true);
+    });
+
+    cy.contains("article", "Projeto para exclusão")
+      .find("button")
+      .click();
+
+    cy.contains("Projeto para exclusão").should("not.exist");
+
+    cy.reload();
+
+    cy.contains("Projeto para exclusão").should("not.exist");
+
+    cy.window().then((win) => {
+      const projetos = JSON.parse(
+        win.localStorage.getItem("devtrack-projetos") || "[]"
+      );
+
+      expect(projetos).to.have.length(0);
+    });
+
+  });
+
   it("deve manter o projeto quando a exclusão for cancelada", () => {
 
-    // Cadastra um projeto
     cy.contains("button", "Adicionar projeto").click();
 
     cy.get("#nome-projeto").type("Projeto protegido");
@@ -78,33 +127,26 @@ describe("Gerenciamento de projetos", () => {
 
     cy.contains("button", "Salvar projeto").click();
 
-    // Verifica se foi cadastrado
     cy.contains("Projeto protegido").should("be.visible");
 
-    // Simula o cancelamento da confirmação
     cy.window().then((win) => {
       cy.stub(win, "confirm").returns(false);
     });
 
-    // Tenta excluir o projeto
     cy.contains("article", "Projeto protegido")
       .find("button")
       .click();
 
-    // Verifica se o projeto continua existindo
     cy.contains("Projeto protegido").should("be.visible");
 
   });
 
   it("não deve permitir cadastrar um projeto com campos vazios", () => {
 
-    // Abre o formulário
     cy.contains("button", "Adicionar projeto").click();
 
-    // Tenta salvar sem preencher os campos
     cy.contains("button", "Salvar projeto").click();
 
-    // Verifica se nenhum projeto foi cadastrado
     cy.window().then((win) => {
       const projetos = JSON.parse(
         win.localStorage.getItem("devtrack-projetos") || "[]"
@@ -115,24 +157,35 @@ describe("Gerenciamento de projetos", () => {
 
   });
 
-  it("não deve permitir cadastrar um projeto com informações incompletas", () => {
+  it("deve permitir cadastrar vários projetos sem sobrescrever os anteriores", () => {
 
-    // Abre o formulário
     cy.contains("button", "Adicionar projeto").click();
 
-    // Preenche apenas o nome
-    cy.get("#nome-projeto").type("Projeto incompleto");
+    cy.get("#nome-projeto").type("Sistema Bancário");
+    cy.get("#tecnologias-projeto").type("Java, Spring Boot");
+    cy.get("#descricao-projeto").type("API REST bancária");
 
-    // Tenta salvar
     cy.contains("button", "Salvar projeto").click();
 
-    // Verifica se nenhum projeto foi cadastrado
+    cy.contains("button", "Adicionar projeto").click();
+
+    cy.get("#nome-projeto").type("DevTrack");
+    cy.get("#tecnologias-projeto").type("HTML, CSS, JavaScript");
+    cy.get("#descricao-projeto").type("Gerenciador de estudos");
+
+    cy.contains("button", "Salvar projeto").click();
+
+
+    cy.contains("Sistema Bancário").should("be.visible");
+    cy.contains("DevTrack").should("be.visible");
+
+
     cy.window().then((win) => {
       const projetos = JSON.parse(
         win.localStorage.getItem("devtrack-projetos") || "[]"
       );
 
-      expect(projetos).to.have.length(0);
+      expect(projetos).to.have.length(2);
     });
 
   });
