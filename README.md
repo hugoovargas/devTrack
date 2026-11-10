@@ -43,17 +43,29 @@ O projeto foi desenvolvido com HTML, CSS e JavaScript puro, com foco na manipula
 - **LocalStorage:** armazenamento dos projetos, registros de estudo e meta semanal no navegador.
 - **Cypress:** implementação de testes automatizados E2E para validar os principais fluxos da aplicação.
 
-## Testes automatizados
+## Testes Automatizados
 
-O projeto conta com testes automatizados utilizando Cypress, com foco na validação dos comportamentos da aplicação pela perspectiva do usuário.
+O projeto conta com testes automatizados End-to-End (E2E) utilizando Cypress, com foco na validação dos comportamentos da aplicação pela perspectiva do usuário.
 
 Os testes são organizados em cenários que verificam funcionalidades como:
 
-- Cadastro e exclusão de projetos.
-- Persistência de dados após atualização da página.
-- Interação com formulários e elementos da interface.
+**Gerenciamento de projetos:**
+- Cadastro de projetos, incluindo o preenchimento opcional da descrição.
+- Validação de campos obrigatórios.
+- Exclusão de projetos e cancelamento da exclusão.
+- Persistência dos dados após atualização da página.
+- Cadastro de múltiplos projetos sem sobrescrever os anteriores.
 
-A suíte de testes está em desenvolvimento e poderá ser ampliada conforme a implementação de novos cenários e funcionalidades.
+**Gerenciamento de estudos:**
+- Cadastro de sessões de estudo, incluindo o preenchimento opcional da descrição.
+- Validação da duração das sessões.
+- Exclusão de estudos e cancelamento da exclusão.
+- Cancelamento do cadastro e limpeza do formulário.
+- Persistência dos dados após atualização da página.
+- Cadastro de múltiplos estudos sem sobrescrever os anteriores.
+- Ordenação dos estudos do mais recente para o mais antigo.
+
+Os testes são executados com Cypress e verificam tanto os elementos exibidos na interface quanto os dados armazenados no LocalStorage.
 
 ## Conceitos praticados
 
