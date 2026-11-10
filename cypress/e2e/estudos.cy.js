@@ -132,6 +132,41 @@ describe("Gerenciamento de estudos", () => {
     cy.contains("Duração: 120 minutos").should("be.visible");
   });
 
+  it("deve manter o estudo excluído após atualizar a página", () => {
+    cy.contains("button", "Registrar estudo").click();
+
+    cy.get("#tema-estudo").type("Estudo para exclusão");
+    cy.get("#tecnologia-estudo").type("JavaScript");
+    cy.get("#duracao-estudo").type("60");
+    cy.get("#data-estudo").type("2026-11-09");
+
+    cy.contains("button", "Salvar estudo").click();
+
+    cy.contains("Estudo para exclusão").should("be.visible");
+
+    cy.window().then((win) => {
+        cy.stub(win, "confirm").returns(true);
+    });
+
+    cy.contains("article", "Estudo para exclusão")
+        .find("button")
+        .click();
+
+    cy.contains("Estudo para exclusão").should("not.exist");
+
+    cy.reload();
+
+    cy.contains("Estudo para exclusão").should("not.exist");
+
+    cy.window().then((win) => {
+        const estudos = JSON.parse(
+            win.localStorage.getItem("devtrack-estudos") || "[]"
+        );
+
+        expect(estudos).to.have.length(0);
+    });
+});
+
   it("não deve cadastrar um estudo com duração igual a zero", () => {
     cy.contains("button", "Registrar estudo").click();
 
@@ -150,6 +185,63 @@ describe("Gerenciamento de estudos", () => {
     cy.window().then((win) => {
       const estudos = JSON.parse(
         win.localStorage.getItem("devtrack-estudos") || "[]",
+      );
+
+      expect(estudos).to.have.length(0);
+    });
+  });
+
+  it("não deve cadastrar um estudo com duração superior a 1000 minutos", () => {
+    cy.contains("button", "Registrar estudo").click();
+
+    cy.get("#tema-estudo").type("Estudo inválido");
+    cy.get("#tecnologia-estudo").type("JavaScript");
+    cy.get("#duracao-estudo").type("1001");
+    cy.get("#data-estudo").type("2026-11-09");
+
+    cy.window().then((win) => {
+      cy.stub(win, "alert").as("alerta");
+    });
+
+    cy.contains("button", "Salvar estudo").click();
+
+    cy.get("@alerta").should(
+      "have.been.calledWith",
+      "Informe uma duração em minutos maior que zero e menor ou igual a 1000."
+    );
+
+    cy.window().then((win) => {
+      const estudos = JSON.parse(
+        win.localStorage.getItem("devtrack-estudos") || "[]"
+      );
+
+      expect(estudos).to.have.length(0);
+    });
+  });
+
+  it("não deve cadastrar um estudo com duração decimal", () => {
+    cy.contains("button", "Registrar estudo").click();
+
+    cy.get("#tema-estudo").type("Estudo inválido");
+    cy.get("#tecnologia-estudo").type("Python");
+    cy.get("#duracao-estudo").invoke("attr", "step", "any");
+    cy.get("#duracao-estudo").type("30.5");
+    cy.get("#data-estudo").type("2026-11-09");
+
+    cy.window().then((win) => {
+      cy.stub(win, "alert").as("alerta");
+    });
+
+    cy.contains("button", "Salvar estudo").click();
+
+    cy.get("@alerta").should(
+      "have.been.calledWith",
+      "Informe uma duração em minutos maior que zero e menor ou igual a 1000."
+    );
+
+    cy.window().then((win) => {
+      const estudos = JSON.parse(
+        win.localStorage.getItem("devtrack-estudos") || "[]"
       );
 
       expect(estudos).to.have.length(0);
